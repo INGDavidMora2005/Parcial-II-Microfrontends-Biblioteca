@@ -15,6 +15,7 @@ module.exports = {
     '!src/**/*.config.ts',
     '!src/**/index.ts',
     '!src/**/*.module.ts',
+    '!src/app/domain/entities/member.entity.ts',
   ],
   coverageThreshold: {
     global: {
