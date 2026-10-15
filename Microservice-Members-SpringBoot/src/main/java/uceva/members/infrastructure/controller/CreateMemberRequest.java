@@ -3,15 +3,20 @@ package uceva.members.infrastructure.controller;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class CreateMemberRequest {
 
     @NotBlank(message = "El nombre completo es obligatorio")
+    @Schema(description = "Nombre completo del socio", example = "Juan Perez")
     private String fullName;
 
     @NotBlank(message = "El correo electrónico es obligatorio")
     @Email(message = "El correo electrónico no es válido")
+    @Schema(description = "Correo electrónico del socio", example = "juan@email.com")
     private String email;
 
+    @Schema(description = "Teléfono del socio", example = "3001112233")
     private String phone;
 
     public CreateMemberRequest() {
