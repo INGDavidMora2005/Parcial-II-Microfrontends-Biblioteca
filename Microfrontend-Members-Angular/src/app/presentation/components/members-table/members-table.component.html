@@ -1,0 +1,26 @@
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre completo</th>
+      <th>Correo</th>
+      <th>Teléfono</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let member of members; trackBy: trackById" (click)="select(member)">
+      <td>{{ member.id }}</td>
+      <td>{{ member.fullName }}</td>
+      <td>{{ member.email }}</td>
+      <td>{{ member.phone || '—' }}</td>
+      <td>
+        <span class="badge" [class.active]="member.active">{{ member.active ? 'Activo' : 'Inactivo' }}</span>
+      </td>
+      <td>Ver detalle</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="empty" *ngIf="members.length === 0">No hay socios registrados</p>
