@@ -1,0 +1,20 @@
+@if (member) {
+<div class="card">
+  <button class="close-btn" (click)="close()">Cerrar</button>
+
+  <h2>{{ member.fullName }}</h2>
+
+  <dl>
+    <dt>Correo electrónico</dt>
+    <dd>{{ member.email }}</dd>
+
+    <dt>Teléfono</dt>
+    <dd>{{ member.phone || '—' }}</dd>
+
+    <dt>Estado</dt>
+    <dd>
+      <span class="badge" [class.active]="member.active">{{ member.active ? 'Activo' : 'Inactivo' }}</span>
+    </dd>
+  </dl>
+</div>
+}
