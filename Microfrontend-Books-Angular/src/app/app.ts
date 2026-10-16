@@ -1,11 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
+import { BooksPage } from './presentation/pages/books/books.page';
 
+/**
+ * Componente raíz, usado solo al ejecutar el microfrontend de forma independiente.
+ */
 @Component({
   selector: 'app-root',
-  imports: [],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  imports: [BooksPage],
+  template: '<app-books />',
 })
-export class App {
-  protected readonly title = signal('Microfrontend-Books-Angular');
-}
+export class App {}
