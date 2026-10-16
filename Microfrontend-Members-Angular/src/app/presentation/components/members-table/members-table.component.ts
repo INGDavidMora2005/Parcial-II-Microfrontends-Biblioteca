@@ -7,7 +7,6 @@ import type { Member } from '../../../domain/entities/member.entity';
   standalone: true,
   imports: [NgFor, NgIf],
   templateUrl: './members-table.component.html',
-  styleUrl: './members-table.component.scss',
 })
 export class MembersTableComponent {
 

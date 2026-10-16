@@ -6,7 +6,6 @@ import type { Member } from '../../../domain/entities/member.entity';
   standalone: true,
   imports: [],
   templateUrl: './member-detail.component.html',
-  styleUrl: './member-detail.component.scss',
 })
 export class MemberDetailComponent {
 

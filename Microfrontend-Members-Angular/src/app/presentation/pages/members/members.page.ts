@@ -24,7 +24,6 @@ import { AlertComponent } from '../../components/alert/alert.component';
     CreateMemberUseCase,
   ],
   templateUrl: './members.page.html',
-  styleUrl: './members.page.scss',
 })
 export class MembersPage {
 

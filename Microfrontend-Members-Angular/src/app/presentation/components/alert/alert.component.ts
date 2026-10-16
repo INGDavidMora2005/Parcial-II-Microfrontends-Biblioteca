@@ -6,7 +6,6 @@ import { NgIf } from '@angular/common';
   standalone: true,
   imports: [NgIf],
   templateUrl: './alert.component.html',
-  styleUrl: './alert.component.scss',
 })
 export class AlertComponent {
 

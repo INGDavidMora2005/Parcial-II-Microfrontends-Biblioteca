@@ -7,7 +7,6 @@ import type { NewMember } from '../../../domain/entities/member.entity';
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './member-form.component.html',
-  styleUrl: './member-form.component.scss',
 })
 export class MemberFormComponent {
 
