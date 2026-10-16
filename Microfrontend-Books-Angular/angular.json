@@ -1,113 +1,94 @@
 {
-	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-	"version": 1,
-	"newProjectRoot": "projects",
-	"projects": {
-		"Microfrontend-Books-Angular": {
-			"projectType": "application",
-			"schematics": {
-				"@schematics/angular:component": {
-					"style": "scss"
-				}
-			},
-			"root": "",
-			"sourceRoot": "src",
-			"prefix": "app",
-			"architect": {
-				"build": {
-					"builder": "ngx-build-plus:browser",
-					"options": {
-						"polyfills": [
-							"zone.js"
-						],
-						"tsConfig": "tsconfig.app.json",
-						"inlineStyleLanguage": "scss",
-						"assets": [
-							{
-								"glob": "**/*",
-								"input": "public",
-								"output": "."
-							}
-						],
-						"styles": [
-							"src/styles.scss"
-						],
-						"main": "src/main.ts",
-						"outputPath": "dist/Microfrontend-Books-Angular",
-						"index": "src\\index.html",
-						"extraWebpackConfig": "webpack.config.js",
-						"commonChunk": false
-					},
-					"configurations": {
-						"production": {
-							"budgets": [
-								{
-									"type": "initial",
-									"maximumWarning": "500kB",
-									"maximumError": "1MB"
-								},
-								{
-									"type": "anyComponentStyle",
-									"maximumWarning": "4kB",
-									"maximumError": "8kB"
-								}
-							],
-							"outputHashing": "all",
-							"extraWebpackConfig": "webpack.prod.config.js"
-						},
-						"development": {
-							"optimization": false,
-							"extractLicenses": false,
-							"sourceMap": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve": {
-					"builder": "ngx-build-plus:dev-server",
-					"configurations": {
-						"production": {
-							"buildTarget": "Microfrontend-Books-Angular:build:production",
-							"extraWebpackConfig": "webpack.prod.config.js"
-						},
-						"development": {
-							"buildTarget": "Microfrontend-Books-Angular:build:development"
-						}
-					},
-					"defaultConfiguration": "development",
-					"options": {
-						"port": 4201,
-						"publicHost": "http://localhost:4201",
-						"extraWebpackConfig": "webpack.config.js"
-					}
-				},
-				"extract-i18n": {
-					"builder": "@angular/build:extract-i18n"
-				},
-				"test": {
-					"builder": "@angular/build:karma",
-					"options": {
-						"polyfills": [
-							"zone.js",
-							"zone.js/testing"
-						],
-						"tsConfig": "tsconfig.spec.json",
-						"inlineStyleLanguage": "scss",
-						"assets": [
-							{
-								"glob": "**/*",
-								"input": "public"
-							}
-						],
-						"styles": [
-							"src/styles.scss"
-						]
-					}
-				}
-			}
-		}
-	},
-	"cli": {
-		"analytics": "4fc7f86c-5ee8-406e-bb12-67a17abe8ee2"
-	}
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "Microfrontend-Books-Angular": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "ngx-build-plus:browser",
+          "options": {
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public",
+                "output": "."
+              }
+            ],
+            "styles": [
+              "src/styles.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"
+            ],
+            "main": "src/main.ts",
+            "outputPath": "dist/Microfrontend-Books-Angular",
+            "index": "src/index.html",
+            "extraWebpackConfig": "webpack.config.js",
+            "commonChunk": false
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "extraWebpackConfig": "webpack.prod.config.js"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "ngx-build-plus:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "Microfrontend-Books-Angular:build:production",
+              "extraWebpackConfig": "webpack.prod.config.js"
+            },
+            "development": {
+              "buildTarget": "Microfrontend-Books-Angular:build:development"
+            }
+          },
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4201,
+            "publicHost": "http://localhost:4201",
+            "extraWebpackConfig": "webpack.config.js"
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n"
+        }
+      }
+    }
+  }
 }
