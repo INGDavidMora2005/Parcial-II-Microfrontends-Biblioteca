@@ -1,5 +1,5 @@
 import { BookRepository } from '../../domain/repositories/book.repository.js';
-import { NewBook } from '../../domain/entities/book.entity.js';
+import { Book, NewBook } from '../../domain/entities/book.entity.js';
 import { CustomError } from '../../domain/errors/custom.error.js';
 
 /**
@@ -41,6 +41,7 @@ export class CreateBookUseCase {
       author: data.author.trim(),
       isbn: data.isbn.trim(),
       year: data.year,
+      available: true,
     };
 
     // available siempre inicia en true
