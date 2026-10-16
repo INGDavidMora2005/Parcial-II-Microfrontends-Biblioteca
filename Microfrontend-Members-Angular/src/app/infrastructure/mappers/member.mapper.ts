@@ -9,7 +9,7 @@ export class MemberMapper {
       id: dto.id,
       fullName: dto.fullName,
       email: dto.email,
-      phone: dto.phone,
+      phone: dto.phone ?? '',
       active: dto.active,
     };
   }
@@ -18,7 +18,7 @@ export class MemberMapper {
     return {
       fullName: member.fullName,
       email: member.email,
-      phone: member.phone,
+      phone: member.phone ?? '',
     };
   }
 }
