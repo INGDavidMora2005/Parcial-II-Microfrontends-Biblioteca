@@ -1,6 +1,6 @@
-import { BookRepository } from '../../domain/repositories/book.repository.js';
-import { BookMemoryDatasource } from '../datasources/book.memory.datasource.js';
-import { Book, NewBook } from '../../domain/entities/book.entity.js';
+import { BookRepository } from '../../domain/repositories/book.repository';
+import { BookMemoryDatasource } from '../datasources/book.memory.datasource';
+import { Book, NewBook } from '../../domain/entities/book.entity';
 
 /**
  * Implementación concreta del repositorio de libros usando la fuente de datos en memoria.

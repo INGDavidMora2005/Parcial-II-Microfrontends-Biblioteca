@@ -1,11 +1,11 @@
-import { BookMemoryDatasource } from './infrastructure/datasources/book.memory.datasource.js';
-import { BookRepositoryImpl } from './infrastructure/repositories/book.repository.impl.js';
-import { ListBooksUseCase } from './application/usecases/list-books.usecase.js';
-import { GetBookByIdUseCase } from './application/usecases/get-book-by-id.usecase.js';
-import { CreateBookUseCase } from './application/usecases/create-book.usecase.js';
-import { BookController } from './infrastructure/http/book.controller.js';
-import { AppRoutes } from './infrastructure/http/routes.js';
-import { Server } from './infrastructure/http/server.js';
+import { BookMemoryDatasource } from './infrastructure/datasources/book.memory.datasource';
+import { BookRepositoryImpl } from './infrastructure/repositories/book.repository.impl';
+import { ListBooksUseCase } from './application/usecases/list-books.usecase';
+import { GetBookByIdUseCase } from './application/usecases/get-book-by-id.usecase';
+import { CreateBookUseCase } from './application/usecases/create-book.usecase';
+import { BookController } from './infrastructure/http/book.controller';
+import { AppRoutes } from './infrastructure/http/routes';
+import { Server } from './infrastructure/http/server';
 
 /**
  * Composition root de la aplicación.

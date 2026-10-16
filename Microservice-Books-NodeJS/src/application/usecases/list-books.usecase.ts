@@ -1,5 +1,5 @@
-import { BookRepository } from '../../domain/repositories/book.repository.js';
-import { Book } from '../../domain/entities/book.entity.js';
+import { BookRepository } from '../../domain/repositories/book.repository';
+import { Book } from '../../domain/entities/book.entity';
 
 /**
  * Caso de uso para listar todos los libros.

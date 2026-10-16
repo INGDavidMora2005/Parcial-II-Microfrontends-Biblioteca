@@ -1,4 +1,4 @@
-import { Book, NewBook } from '../entities/book.entity.js';
+import { Book, NewBook } from '../entities/book.entity';
 
 /**
  * Contrato del repositorio para la gestión de libros.

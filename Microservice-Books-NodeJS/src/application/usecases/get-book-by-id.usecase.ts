@@ -1,6 +1,6 @@
-import { BookRepository } from '../../domain/repositories/book.repository.js';
-import { Book } from '../../domain/entities/book.entity.js';
-import { CustomError } from '../../domain/errors/custom.error.js';
+import { BookRepository } from '../../domain/repositories/book.repository';
+import { Book } from '../../domain/entities/book.entity';
+import { CustomError } from '../../domain/errors/custom.error';
 
 /**
  * Caso de uso para obtener un libro por su identificador.

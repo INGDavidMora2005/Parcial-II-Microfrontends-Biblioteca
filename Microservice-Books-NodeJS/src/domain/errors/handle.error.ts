@@ -1,4 +1,4 @@
-import { CustomError } from './custom.error.js';
+import { CustomError } from './custom.error';
 
 /**
  * Procesa errores desconocidos o personalizados y los normaliza.

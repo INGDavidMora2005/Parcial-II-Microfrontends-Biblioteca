@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { BookController } from './book.controller.js';
+import { BookController } from './book.controller';
 
 /**
  * Rutas del recurso Book.
