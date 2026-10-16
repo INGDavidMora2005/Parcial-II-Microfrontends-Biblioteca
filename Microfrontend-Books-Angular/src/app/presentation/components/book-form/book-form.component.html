@@ -1,0 +1,35 @@
+<form class="card card-body mb-3" [formGroup]="form" (ngSubmit)="onSubmit()" data-testid="book-form">
+  <h5 class="card-title">Nuevo libro</h5>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert" data-testid="form-error">{{ errorMessage() }}</div>
+  }
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label" for="title">Título</label>
+      <input id="title" class="form-control" formControlName="title" [class.is-invalid]="isInvalid('title')" />
+      @if (isInvalid('title')) { <div class="invalid-feedback">El título es obligatorio.</div> }
+    </div>
+    <div class="col-md-6">
+      <label class="form-label" for="author">Autor</label>
+      <input id="author" class="form-control" formControlName="author" [class.is-invalid]="isInvalid('author')" />
+      @if (isInvalid('author')) { <div class="invalid-feedback">El autor es obligatorio.</div> }
+    </div>
+    <div class="col-md-6">
+      <label class="form-label" for="isbn">ISBN</label>
+      <input id="isbn" class="form-control" formControlName="isbn" [class.is-invalid]="isInvalid('isbn')" />
+      @if (isInvalid('isbn')) { <div class="invalid-feedback">El ISBN es obligatorio.</div> }
+    </div>
+    <div class="col-md-6">
+      <label class="form-label" for="year">Año</label>
+      <input id="year" type="number" class="form-control" formControlName="year" [class.is-invalid]="isInvalid('year')" />
+      @if (isInvalid('year')) { <div class="invalid-feedback">Ingresa un año válido.</div> }
+    </div>
+  </div>
+
+  <div class="mt-3 d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">Cancelar</button>
+  </div>
+</form>

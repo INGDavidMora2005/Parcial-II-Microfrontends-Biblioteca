@@ -1,0 +1,30 @@
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Catálogo de libros</h2>
+    <button type="button" class="btn btn-primary" (click)="openForm()">Nuevo libro</button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success" role="status" data-testid="success">{{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert" data-testid="error">{{ errorMessage() }}</div>
+  }
+
+  @if (showForm()) {
+    <app-book-form [errorMessage]="formError()" (submitted)="saveBook($event)" (cancelled)="closeForm()" />
+  }
+
+  @if (selectedBook(); as book) {
+    <app-book-detail [book]="book" (closed)="closeDetail()" />
+  }
+
+  @if (state() === 'loading') {
+    <div class="text-center my-4" data-testid="loading">
+      <div class="spinner-border" role="status"></div>
+      <p class="mt-2">Cargando libros...</p>
+    </div>
+  } @else if (state() === 'success') {
+    <app-books-table [books]="books()" (selected)="selectBook($event)" />
+  }
+</div>
