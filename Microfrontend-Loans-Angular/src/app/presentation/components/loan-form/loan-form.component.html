@@ -1,0 +1,37 @@
+<div class="card mb-4">
+	<div class="card-header d-flex align-items-center">
+		<dsb-icon-atom icon="plus-circle" [size]="1.5"></dsb-icon-atom>
+		<span class="ps-2 fw-bold">Registrar préstamo</span>
+	</div>
+	<form class="card-body" [formGroup]="form" (ngSubmit)="onSubmit()">
+		<div class="mb-3">
+			<label for="bookTitle" class="form-label">Título del libro</label>
+			<input id="bookTitle" type="text" class="form-control" formControlName="bookTitle"
+				[class.is-invalid]="isInvalid('bookTitle')">
+			<div class="invalid-feedback">El título del libro es obligatorio</div>
+		</div>
+
+		<div class="mb-3">
+			<label for="memberName" class="form-label">Nombre del socio</label>
+			<input id="memberName" type="text" class="form-control" formControlName="memberName"
+				[class.is-invalid]="isInvalid('memberName')">
+			<div class="invalid-feedback">El nombre del socio es obligatorio</div>
+		</div>
+
+		<div class="mb-3">
+			<label for="dueDate" class="form-label">Fecha de devolución</label>
+			<input id="dueDate" type="date" class="form-control" formControlName="dueDate"
+				[class.is-invalid]="isInvalid('dueDate')">
+			<div class="invalid-feedback">La fecha de devolución es obligatoria</div>
+		</div>
+
+		<div class="text-end">
+			<dsb-button-atom
+				[text]="saving ? 'Guardando...' : 'Registrar'"
+				type="success"
+				idButton="loan-form-submit"
+				(clicker)="onSubmit()" >
+			</dsb-button-atom>
+		</div>
+	</form>
+</div>
