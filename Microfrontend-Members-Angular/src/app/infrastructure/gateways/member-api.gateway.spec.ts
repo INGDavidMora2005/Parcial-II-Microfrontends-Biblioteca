@@ -76,6 +76,25 @@ describe('MemberApiGateway', () => {
     expect(result).toEqual({ id: 3, fullName: 'Ana Garcia', email: 'ana@email.com', phone: '3003334455', active: true });
   });
 
+  it('create con error 400 con message debe lanzar ese mensaje', async () => {
+    const newMember: NewMember = { fullName: 'Ana Garcia', email: 'ana@email.com', phone: '3003334455' };
+
+    const promise = gateway.create(newMember);
+    const req = httpMock.expectOne(MEMBERS_API_URL);
+    expect(req.request.method).toBe('POST');
+    req.flush({ message: 'Email duplicado' }, { status: 400, statusText: 'Bad Request' });
+
+    await expect(promise).rejects.toThrow('Email duplicado');
+  });
+
+  it('error 500 sin message debe lanzar mensaje genérico', async () => {
+    const promise = gateway.getAll();
+    const req = httpMock.expectOne(MEMBERS_API_URL);
+    req.flush({}, { status: 500, statusText: 'Internal Server Error' });
+
+    await expect(promise).rejects.toThrow('Error al consultar el servicio de socios');
+  });
+
   it('getById 404 con message debe lanzar ese mensaje', async () => {
     const promise = gateway.getById(999);
     const req = httpMock.expectOne(`${MEMBERS_API_URL}/999`);
