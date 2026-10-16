@@ -1,0 +1,61 @@
+<div class="mx-5">
+	<dsb-container-atom title="Préstamos">
+		<div class="row">
+			<div class="col-lg-8">
+				@switch(state){
+
+					@case('loading'){
+						<app-alert alertState="loading" text="Cargando Préstamos..." ></app-alert>
+					}
+
+					@case('error'){
+						<app-alert alertState="error" text="Error al Cargar los Préstamos" ></app-alert>
+					}
+
+					@case('success'){
+						<app-loans-table [loans]="loans" (selectLoan)="onSelectLoan($event)" ></app-loans-table>
+					}
+
+				}
+			</div>
+
+			<div class="col-lg-4">
+				@switch(detailState){
+
+					@case('loading'){
+						<app-alert alertState="loading" text="Cargando Detalle..." ></app-alert>
+					}
+
+					@case('error'){
+						<app-alert alertState="error" text="Error al Cargar el Detalle del Préstamo" ></app-alert>
+					}
+
+					@case('success'){
+						@if(selectedLoan){
+							<app-loan-detail [loan]="selectedLoan" (closeDetail)="onCloseDetail()" ></app-loan-detail>
+						}
+					}
+
+				}
+
+				<app-loan-form [saving]="createState === 'loading'" (submitLoan)="onCreateLoan($event)" ></app-loan-form>
+
+				@switch(createState){
+
+					@case('loading'){
+						<app-alert alertState="loading" text="Registrando Préstamo..." ></app-alert>
+					}
+
+					@case('error'){
+						<app-alert alertState="error" [text]="createErrorMessage" ></app-alert>
+					}
+
+					@case('success'){
+						<div class="alert alert-success" role="alert">Préstamo registrado correctamente</div>
+					}
+
+				}
+			</div>
+		</div>
+	</dsb-container-atom>
+</div>
