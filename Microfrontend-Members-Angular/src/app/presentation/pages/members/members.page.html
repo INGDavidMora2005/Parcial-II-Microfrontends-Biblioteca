@@ -1,0 +1,26 @@
+@if (error()) {
+  <app-alert type="error" [message]="error() ?? ''" (click)="clearMessages()" />
+}
+
+@if (successMessage()) {
+  <app-alert type="success" [message]="successMessage() ?? ''" (click)="clearMessages()" />
+}
+
+<div class="page-header">
+  <h1>Socios</h1>
+  <button class="btn-add" (click)="openForm()">+ Agregar socio</button>
+</div>
+
+@if (loading()) {
+  <div class="loading">Cargando socios...</div>
+} @else {
+  <app-members-table [members]="members()" (memberSelected)="selectMember($event)" />
+}
+
+@if (selected()) {
+  <app-member-detail [member]="selected()" (closed)="closeDetail()" />
+}
+
+@if (showForm()) {
+  <app-member-form [saving]="saving()" (submitted)="createMember($event)" (cancelled)="cancelForm()" />
+}
