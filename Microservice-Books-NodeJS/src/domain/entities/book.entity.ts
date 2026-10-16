@@ -19,8 +19,9 @@ export interface Book {
 }
 
 /**
- * Datos necesarios para crear un nuevo libro (sin id).
+ * Datos necesarios para crear un nuevo libro.
  * @remarks
- * El id se genera automáticamente en la capa de infraestructura.
+ * Excluye `id` (lo genera la infraestructura) y `available`
+ * (todo libro nuevo inicia disponible).
  */
-export type NewBook = Omit<Book, 'id'>;
+export type NewBook = Omit<Book, 'id' | 'available'>;

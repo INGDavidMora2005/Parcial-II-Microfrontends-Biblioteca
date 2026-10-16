@@ -1,12 +1,12 @@
-import { BookRepository } from '../../domain/repositories/book.repository.js';
-import { Book, NewBook } from '../../domain/entities/book.entity.js';
-import { CustomError } from '../../domain/errors/custom.error.js';
+import { BookRepository } from '../../domain/repositories/book.repository';
+import { Book, NewBook } from '../../domain/entities/book.entity';
+import { CustomError } from '../../domain/errors/custom.error';
 
 /**
  * Caso de uso para crear un nuevo libro.
  * @remarks
  * Valida que los campos obligatorios estén presentes y no vacíos.
- * Asigna automáticamente available: true.
+ * El libro nuevo inicia siempre con available: true (lo asigna el datasource).
  */
 export class CreateBookUseCase {
   /**
@@ -41,10 +41,9 @@ export class CreateBookUseCase {
       author: data.author.trim(),
       isbn: data.isbn.trim(),
       year: data.year,
-      available: true,
     };
 
-    // available siempre inicia en true
+    // El datasource asigna el id y available = true
     return this.bookRepository.create(bookData);
   }
 }
