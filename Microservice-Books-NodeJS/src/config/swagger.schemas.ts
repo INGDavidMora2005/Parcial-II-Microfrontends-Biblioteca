@@ -1,4 +1,4 @@
-import { Book, NewBook } from '../domain/entities/book.entity.js';
+import { Book, NewBook } from '../domain/entities/book.entity';
 
 /**
  * OpenAPI schemas for the API documentation.

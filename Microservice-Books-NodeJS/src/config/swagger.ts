@@ -1,5 +1,6 @@
 import swaggerJSDoc from 'swagger-jsdoc';
-import { swaggerSchemas } from './swagger.schemas.js';
+import { swaggerSchemas } from './swagger.schemas';
+import { envs } from './envs';
 
 const options = {
   definition: {
@@ -11,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3001',
+        url: `http://localhost:${envs.PORT}`,
         description: 'Servidor de desarrollo',
       },
     ],

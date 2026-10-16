@@ -1,9 +1,8 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction, Router } from 'express';
 import cors from 'cors';
-import { Router } from 'express';
 import swaggerUiExpress from 'swagger-ui-express';
-import { swaggerSpec } from '../../config/swagger.js';
-import { envs } from '../../config/envs.js';
+import { swaggerSpec } from '../../config/swagger';
+import { envs } from '../../config/envs';
 
 /**
  * Servidor Express configurado con Clean Architecture.

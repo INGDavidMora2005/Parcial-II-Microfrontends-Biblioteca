@@ -1,9 +1,9 @@
-import { Request, Response, Router } from 'express';
-import { ListBooksUseCase } from '../../application/usecases/list-books.usecase.js';
-import { GetBookByIdUseCase } from '../../application/usecases/get-book-by-id.usecase.js';
-import { CreateBookUseCase } from '../../application/usecases/create-book.usecase.js';
-import { CustomError } from '../../domain/errors/custom.error.js';
-import { handleError } from '../../domain/errors/handle.error.js';
+import { Request, Response } from 'express';
+import { ListBooksUseCase } from '../../application/usecases/list-books.usecase';
+import { GetBookByIdUseCase } from '../../application/usecases/get-book-by-id.usecase';
+import { CreateBookUseCase } from '../../application/usecases/create-book.usecase';
+import { CustomError } from '../../domain/errors/custom.error';
+import { handleError } from '../../domain/errors/handle.error';
 
 /**
  * Controlador REST para la entidad Libro.
