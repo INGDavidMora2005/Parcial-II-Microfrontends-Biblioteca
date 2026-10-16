@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { BookController } from './book.controller.js';
+import { BookController } from './book.controller';
+import { BookRoutes } from './book.routes';
 
 /**
  * Configurador global de rutas de la aplicación.
@@ -15,9 +16,6 @@ export class AppRoutes {
   static routes(bookController: BookController): Router {
     const router = Router();
 
-    // Importamos aquí para evitar referencias circulares en tiempo de compilación.
-    // Esto es seguro porque las rutas de libro no dependen de AppRoutes.
-    const { BookRoutes } = require('./book.routes.js');
     router.use('/api/books', BookRoutes.routes(bookController));
 
     return router;
