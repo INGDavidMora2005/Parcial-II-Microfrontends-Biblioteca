@@ -6,7 +6,7 @@
 	},
 	"newProjectRoot": "projects",
 	"projects": {
-		"Client-Loans-Angular": {
+		"Microfrontend-Loans-Angular": {
 			"projectType": "application",
 			"schematics": {
 				"@schematics/angular:component": {
@@ -38,7 +38,7 @@
 							"node_modules/bootstrap-icons/font/bootstrap-icons.scss"
 						],
 						"main": "src/main.ts",
-						"outputPath": "dist/Client-Loans-Angular",
+						"outputPath": "dist/Microfrontend-Loans-Angular",
 						"index": "src/index.html",
 						"extraWebpackConfig": "webpack.config.js",
 						"commonChunk": false,
@@ -75,11 +75,11 @@
 					"builder": "ngx-build-plus:dev-server",
 					"configurations": {
 						"production": {
-							"buildTarget": "Client-Loans-Angular:build:production",
+							"buildTarget": "Microfrontend-Loans-Angular:build:production",
 							"extraWebpackConfig": "webpack.prod.config.js"
 						},
 						"development": {
-							"buildTarget": "Client-Loans-Angular:build:development"
+							"buildTarget": "Microfrontend-Loans-Angular:build:development"
 						}
 					},
 					"defaultConfiguration": "development",
