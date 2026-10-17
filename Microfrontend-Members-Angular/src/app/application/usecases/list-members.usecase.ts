@@ -1,13 +1,13 @@
-import { inject, Injectable } from '@angular/core';
-import { MemberRepository } from '../../domain/repositories/member.repository';
 import type { Member } from '../../domain/entities/member.entity';
+import { MemberRepository } from '../../domain/repositories/member.repository';
 
-@Injectable()
+/**
+ * Caso de uso: listar el catálogo de socios.
+ */
 export class ListMembersUseCase {
+  constructor(private readonly memberRepository: MemberRepository) {}
 
-  private readonly repository = inject(MemberRepository);
-
-  async execute(): Promise<Member[]> {
-    return this.repository.getAll();
+  execute(): Promise<Member[]> {
+    return this.memberRepository.findAll();
   }
 }

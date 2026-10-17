@@ -1,13 +1,18 @@
-import { inject, Injectable } from '@angular/core';
-import { MemberRepository } from '../../domain/repositories/member.repository';
 import type { Member } from '../../domain/entities/member.entity';
+import { MemberRepository } from '../../domain/repositories/member.repository';
 
-@Injectable()
+/**
+ * Caso de uso: obtener el detalle de un socio por su id.
+ * @remarks
+ * Valida el id antes de consultar el repositorio.
+ */
 export class GetMemberByIdUseCase {
-
-  private readonly repository = inject(MemberRepository);
+  constructor(private readonly memberRepository: MemberRepository) {}
 
   async execute(id: number): Promise<Member> {
-    return this.repository.getById(id);
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error('El id debe ser un número entero positivo');
+    }
+    return this.memberRepository.findById(id);
   }
 }

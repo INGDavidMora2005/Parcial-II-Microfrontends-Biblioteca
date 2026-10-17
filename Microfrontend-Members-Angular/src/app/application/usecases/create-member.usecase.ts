@@ -1,12 +1,13 @@
-import { inject, Injectable } from '@angular/core';
+import type { Member, NewMember } from '../../domain/entities/member.entity';
 import { MemberRepository } from '../../domain/repositories/member.repository';
-import type { Member } from '../../domain/entities/member.entity';
-import type { NewMember } from '../../domain/entities/member.entity';
 
-@Injectable()
+/**
+ * Caso de uso: registrar un socio nuevo.
+ * @remarks
+ * Valida los datos antes de enviarlos al repositorio.
+ */
 export class CreateMemberUseCase {
-
-  private readonly repository = inject(MemberRepository);
+  constructor(private readonly memberRepository: MemberRepository) {}
 
   async execute(member: NewMember): Promise<Member> {
     if (!member.fullName || !member.fullName.trim()) {
@@ -18,6 +19,6 @@ export class CreateMemberUseCase {
     if (!member.email.includes('@')) {
       throw new Error('El correo electrónico debe contener "@"');
     }
-    return this.repository.create(member);
+    return this.memberRepository.create(member);
   }
 }
