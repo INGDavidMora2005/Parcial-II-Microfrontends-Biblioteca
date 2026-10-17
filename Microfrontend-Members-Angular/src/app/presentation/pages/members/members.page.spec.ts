@@ -1,194 +1,166 @@
-import { TestBed } from '@angular/core/testing';
-import { MembersPage } from './members.page';
-import { ListMembersUseCase } from '../../../application/usecases/list-members.usecase';
-import { GetMemberByIdUseCase } from '../../../application/usecases/get-member-by-id.usecase';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MEMBERS_API_URL } from '../../../infrastructure/config/api.config';
 import { CreateMemberUseCase } from '../../../application/usecases/create-member.usecase';
-import type { Member } from '../../../domain/entities/member.entity';
+import { GetMemberByIdUseCase } from '../../../application/usecases/get-member-by-id.usecase';
+import { ListMembersUseCase } from '../../../application/usecases/list-members.usecase';
+import { MembersPage } from './members.page';
 
-const mockListMembersUseCase = {
-  execute: jest.fn(),
-};
-
-const mockGetMemberByIdUseCase = {
-  execute: jest.fn(),
-};
-
-const mockCreateMemberUseCase = {
-  execute: jest.fn(),
-};
-
+/**
+ * Pruebas de la página con los providers reales (MEMBERS_PROVIDERS):
+ * recorren página -> casos de uso -> gateway -> HTTP simulado.
+ */
 describe('MembersPage', () => {
-  beforeEach(() => {
+  let fixture: ComponentFixture<MembersPage>;
+  let page: MembersPage;
+  let http: HttpTestingController;
+  const dto = (id: number) => ({ id, fullName: `Socio ${id}`, email: `socio${id}@email.com`, phone: `${id}`, active: true });
+  const el = () => fixture.nativeElement as HTMLElement;
+  const flushMicrotasks = () => new Promise<void>((resolve) => setTimeout(resolve));
+
+  const init = async (list: unknown = [dto(1), dto(2)]) => {
+    fixture.detectChanges();
+    http.expectOne(MEMBERS_API_URL).flush(list);
+    await flushMicrotasks();
+    fixture.detectChanges();
+  };
+
+  const setupWith = (providers: any[]) => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [
-        MembersPage,
-        { provide: ListMembersUseCase, useValue: mockListMembersUseCase },
-        { provide: GetMemberByIdUseCase, useValue: mockGetMemberByIdUseCase },
-        { provide: CreateMemberUseCase, useValue: mockCreateMemberUseCase },
-      ],
+      imports: [MembersPage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), ...providers],
     });
+    fixture = TestBed.createComponent(MembersPage);
+    page = fixture.componentInstance;
+    http = TestBed.inject(HttpTestingController);
+  };
+
+  beforeEach(() => {
+    setupWith([]);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  afterEach(() => http.verify());
+
+  it('debe mostrar el estado de carga y luego la tabla de socios', async () => {
+    fixture.detectChanges();
+    expect(page.loading()).toBe(true);
+    expect(el().textContent).toContain('Cargando socios...');
+    http.expectOne(MEMBERS_API_URL).flush([dto(1), dto(2)]);
+    await flushMicrotasks();
+    fixture.detectChanges();
+    expect(page.loading()).toBe(false);
+    expect(el().querySelectorAll('app-members-table').length).toBe(1);
   });
 
-  it('debe crear el componente', () => {
-    const component = TestBed.inject(MembersPage);
-    expect(component).toBeTruthy();
+  it('debe mostrar el error cuando falla la carga', async () => {
+    fixture.detectChanges();
+    http.expectOne(MEMBERS_API_URL).flush({ message: 'Fallo del servicio' }, { status: 500, statusText: 'Error' });
+    await flushMicrotasks();
+    fixture.detectChanges();
+    expect(page.error()).toBe('Fallo del servicio');
   });
 
-  it('debe cargar miembros al iniciar', async () => {
-    const members: Member[] = [
-      { id: 1, fullName: 'Juan Perez', email: 'juan@email.com', phone: '3001112233', active: true },
-    ];
-    mockListMembersUseCase.execute.mockResolvedValue(members);
-
-    const component = TestBed.inject(MembersPage);
-    await component.ngOnInit();
-
-    expect(mockListMembersUseCase.execute).toHaveBeenCalledTimes(1);
-    expect(component.members()).toEqual(members);
-    expect(component.loading()).toBe(false);
+  it('debe usar el mensaje genérico de carga cuando el error es de red (status 0)', async () => {
+    fixture.detectChanges();
+    http.expectOne(MEMBERS_API_URL).error(new ProgressEvent('error'));
+    await flushMicrotasks();
+    fixture.detectChanges();
+    expect(page.error()).toBe('No se pudo conectar con el servicio de socios');
   });
 
-  it('debe mostrar error cuando falla la carga inicial', async () => {
-    mockListMembersUseCase.execute.mockRejectedValue(new Error('Error de base de datos'));
-
-    const component = TestBed.inject(MembersPage);
-    await component.ngOnInit();
-
-    expect(component.error()).toBe('Error de base de datos');
-    expect(component.loading()).toBe(false);
-  });
-
-  it('debe mostrar estado vacío cuando no hay miembros', async () => {
-    mockListMembersUseCase.execute.mockResolvedValue([]);
-
-    const component = TestBed.inject(MembersPage);
-    await component.ngOnInit();
-
-    expect(component.members()).toEqual([]);
-  });
-
-  it('debe seleccionar un miembro y cargar su detalle', async () => {
-    const member: Member = {
-      id: 1,
-      fullName: 'Juan Perez',
-      email: 'juan@email.com',
-      phone: '3001112233',
-      active: true,
-    };
-    mockGetMemberByIdUseCase.execute.mockResolvedValue(member);
-
-    const component = TestBed.inject(MembersPage);
-    await component.selectMember(1);
-
-    expect(mockGetMemberByIdUseCase.execute).toHaveBeenCalledWith(1);
-    expect(component.selected()).toEqual(member);
-  });
-
-  it('debe mostrar error al seleccionar miembro inexistente', async () => {
-    mockGetMemberByIdUseCase.execute.mockRejectedValue(new Error('Socio no encontrado'));
-
-    const component = TestBed.inject(MembersPage);
-    await component.selectMember(999);
-
-    expect(component.error()).toBe('Socio no encontrado');
-    expect(component.selected()).toBeNull();
-  });
-
-  it('debe crear un miembro con éxito', async () => {
-    const newMember: Member = {
-      id: 2,
-      fullName: 'Maria Gomez',
-      email: 'maria@email.com',
-      phone: '3002223344',
-      active: true,
-    };
-    mockCreateMemberUseCase.execute.mockResolvedValue(newMember);
-
-    const component = TestBed.inject(MembersPage);
-    await component.createMember({ fullName: 'Maria Gomez', email: 'maria@email.com', phone: '3002223344' });
-
-    expect(mockCreateMemberUseCase.execute).toHaveBeenCalledWith({
-      fullName: 'Maria Gomez',
-      email: 'maria@email.com',
-      phone: '3002223344',
-    });
-    expect(component.successMessage()).toBe('Socio creado correctamente');
-    expect(component.showForm()).toBe(false);
-    expect(component.selected()).toBeNull();
-    expect(component.saving()).toBe(false);
-  });
-
-  it('debe mostrar error al crear miembro', async () => {
-    mockCreateMemberUseCase.execute.mockRejectedValue(new Error('Email duplicado'));
-
-    const component = TestBed.inject(MembersPage);
-    await component.createMember({ fullName: 'Maria Gomez', email: 'maria@email.com', phone: '3002223344' });
-
-    expect(component.error()).toBe('Email duplicado');
-    expect(component.saving()).toBe(false);
-  });
-
-  it('debe mostrar estado saving al crear', async () => {
-    mockCreateMemberUseCase.execute.mockResolvedValue({
-      id: 2,
-      fullName: 'Maria Gomez',
-      email: 'maria@email.com',
-      phone: '3002223344',
-      active: true,
-    });
-
-    const component = TestBed.inject(MembersPage);
-    const promise = component.createMember({ fullName: 'Maria Gomez', email: 'maria@email.com', phone: '3002223344' });
-
-    expect(component.saving()).toBe(true);
+  it('debe mostrar el detalle del socio seleccionado y poder cerrarlo', async () => {
+    await init();
+    const promise = page.selectMember(2);
+    http.expectOne(`${MEMBERS_API_URL}/2`).flush(dto(2));
     await promise;
-    expect(component.saving()).toBe(false);
+    fixture.detectChanges();
+    expect(el().querySelector('app-member-detail')).not.toBeNull();
+    page.closeDetail();
+    fixture.detectChanges();
+    expect(el().querySelector('app-member-detail')).toBeNull();
   });
 
-  it('debe cerrar el detalle', async () => {
-    const component = TestBed.inject(MembersPage);
-    component.selected.set({ id: 1, fullName: 'Juan Perez', email: 'juan@email.com', phone: '3001112233', active: true });
-
-    component.closeDetail();
-
-    expect(component.selected()).toBeNull();
+  it('debe mostrar el error cuando falla la consulta del detalle', async () => {
+    await init();
+    const promise = page.selectMember(99);
+    http.expectOne(`${MEMBERS_API_URL}/99`).flush({ message: 'Socio inexistente' }, { status: 404, statusText: 'Not Found' });
+    await promise;
+    expect(page.error()).toBe('Socio inexistente');
   });
 
-  it('debe cancelar el formulario', async () => {
-    const component = TestBed.inject(MembersPage);
-    component.showForm.set(true);
-
-    component.cancelForm();
-
-    expect(component.showForm()).toBe(false);
+  it('debe abrir y cerrar el formulario', async () => {
+    await init();
+    page.openForm();
+    fixture.detectChanges();
+    expect(el().querySelector('app-member-form')).not.toBeNull();
+    page.cancelForm();
+    fixture.detectChanges();
+    expect(el().querySelector('app-member-form')).toBeNull();
   });
 
-  it('debe abrir el formulario', async () => {
-    const component = TestBed.inject(MembersPage);
-    component.showForm.set(false);
-    component.successMessage.set('Socio creado correctamente');
-
-    component.openForm();
-
-    expect(component.showForm()).toBe(true);
-    expect(component.successMessage()).toBeNull();
-    expect(component.error()).toBeNull();
-    expect(component.selected()).toBeNull();
+  it('debe crear un socio, cerrar el formulario y recargar la lista', async () => {
+    await init();
+    page.openForm();
+    const promise = page.createMember({ fullName: 'Nuevo Socio', email: 'nuevo@email.com', phone: '9' });
+    http.expectOne({ method: 'POST', url: MEMBERS_API_URL }).flush({ ...dto(3), fullName: 'Nuevo Socio' }, { status: 201, statusText: 'Created' });
+    await flushMicrotasks();
+    http.expectOne({ method: 'GET', url: MEMBERS_API_URL }).flush([dto(1), dto(2), { ...dto(3), fullName: 'Nuevo Socio' }]);
+    await promise;
+    fixture.detectChanges();
+    expect(page.showForm()).toBe(false);
+    expect(page.successMessage()).toContain('Nuevo Socio');
   });
 
-  it('debe limpiar los mensajes', async () => {
-    const component = TestBed.inject(MembersPage);
-    component.error.set('Algún error');
-    component.successMessage.set('Socio creado');
+  it('debe mostrar el error del formulario cuando la creación falla', async () => {
+    await init();
+    page.openForm();
+    const promise = page.createMember({ fullName: '', email: 'a@email.com', phone: '1' });
+    await promise;
+    expect(page.error()).toBe('El nombre completo es obligatorio');
+    expect(page.showForm()).toBe(true);
+  });
 
-    component.clearMessages();
+  it('debe usar el mensaje del Error cuando la instancia es un Error (toMessage)', () => {
+    const pageAny = page as any;
+    expect(pageAny.toMessage(new Error('Fallo controlado'))).toBe('Fallo controlado');
+  });
 
-    expect(component.error()).toBeNull();
-    expect(component.successMessage()).toBeNull();
+  it('debe usar un mensaje genérico cuando el error no es una instancia de Error (toMessage)', () => {
+    const pageAny = page as any;
+    expect(pageAny.toMessage('texto')).toBe('Ocurrió un error inesperado');
+  });
+
+  it('debe limpiar los mensajes con clearMessages', () => {
+    const pageAny = page as any;
+    page.error.set('Algún error');
+    page.successMessage.set('Socio creado');
+    pageAny.clearMessages();
+    expect(page.error()).toBeNull();
+    expect(page.successMessage()).toBeNull();
+  });
+
+  it('debe usar el mensaje genérico de carga cuando el error no es una Error', async () => {
+    const listUseCase = fixture.debugElement.injector.get(ListMembersUseCase);
+    jest.spyOn(listUseCase, 'execute').mockRejectedValue('error string');
+    await page.ngOnInit();
+    expect(page.error()).toBe('Error al cargar los socios');
+    expect(page.loading()).toBe(false);
+  });
+
+  it('debe usar el mensaje genérico de detalle cuando el error no es una Error', async () => {
+    const detailUseCase = fixture.debugElement.injector.get(GetMemberByIdUseCase);
+    jest.spyOn(detailUseCase, 'execute').mockRejectedValue(42);
+    await page.selectMember(1);
+    expect(page.error()).toBe('Error al obtener el socio');
+  });
+
+  it('debe usar el mensaje genérico de creación cuando el error no es una Error', async () => {
+    const createUseCase = fixture.debugElement.injector.get(CreateMemberUseCase);
+    jest.spyOn(createUseCase, 'execute').mockRejectedValue({});
+    await page.createMember({ fullName: 'Nuevo', email: 'nuevo@email.com', phone: '1' });
+    expect(page.error()).toBe('Error al crear el socio');
+    expect(page.saving()).toBe(false);
   });
 });

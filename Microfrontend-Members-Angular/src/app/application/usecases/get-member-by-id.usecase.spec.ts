@@ -1,49 +1,22 @@
-import { TestBed } from '@angular/core/testing';
-import { GetMemberByIdUseCase } from './get-member-by-id.usecase';
+import { Member } from '../../domain/entities/member.entity';
 import { MemberRepository } from '../../domain/repositories/member.repository';
-import type { Member } from '../../domain/entities/member.entity';
+import { GetMemberByIdUseCase } from './get-member-by-id.usecase';
 
 describe('GetMemberByIdUseCase', () => {
-  let useCase: GetMemberByIdUseCase;
-  let repository: jest.Mocked<MemberRepository>;
+  const member: Member = { id: 2, fullName: 'Juan Perez', email: 'juan@email.com', phone: '3001112233', active: true };
 
-  const mockMember: Member = {
-    id: 1,
-    fullName: 'Juan Perez',
-    email: 'juan@email.com',
-    phone: '3001112233',
-    active: true,
-  };
-
-  beforeEach(() => {
-    TestBed.resetTestingModule();
-    repository = {
-      getAll: jest.fn(),
-      getById: jest.fn(),
-      create: jest.fn(),
-    } as unknown as jest.Mocked<MemberRepository>;
-    TestBed.configureTestingModule({
-      providers: [
-        GetMemberByIdUseCase,
-        { provide: MemberRepository, useValue: repository },
-      ],
-    });
-    useCase = TestBed.inject(GetMemberByIdUseCase);
+  it('debe retornar el socio cuando el id es válido', async () => {
+    const repository = { findById: jest.fn().mockResolvedValue(member) } as unknown as MemberRepository;
+    const result = await new GetMemberByIdUseCase(repository).execute(2);
+    expect(result).toEqual(member);
+    expect(repository.findById).toHaveBeenCalledWith(2);
   });
 
-  it('debe retornar el miembro por id', async () => {
-    repository.getById.mockResolvedValue(mockMember);
-
-    const result = await useCase.execute(1);
-
-    expect(result).toEqual(mockMember);
-    expect(repository.getById).toHaveBeenCalledWith(1);
-    expect(repository.getById).toHaveBeenCalledTimes(1);
-  });
-
-  it('debe propagar el error del repositorio cuando no existe', async () => {
-    repository.getById.mockRejectedValue(new Error('Socio no encontrado'));
-
-    await expect(useCase.execute(999)).rejects.toThrow('Socio no encontrado');
+  it.each([0, -1, 1.5, NaN])('debe rechazar el id inválido %p sin consultar el repositorio', async (id) => {
+    const repository = { findById: jest.fn() } as unknown as MemberRepository;
+    await expect(new GetMemberByIdUseCase(repository).execute(id)).rejects.toThrow(
+      'El id debe ser un número entero positivo',
+    );
+    expect(repository.findById).not.toHaveBeenCalled();
   });
 });

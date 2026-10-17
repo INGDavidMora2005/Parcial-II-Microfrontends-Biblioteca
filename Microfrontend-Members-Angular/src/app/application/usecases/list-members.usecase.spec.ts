@@ -1,45 +1,22 @@
-import { TestBed } from '@angular/core/testing';
-import { ListMembersUseCase } from './list-members.usecase';
+import { Member } from '../../domain/entities/member.entity';
 import { MemberRepository } from '../../domain/repositories/member.repository';
-import type { Member } from '../../domain/entities/member.entity';
+import { ListMembersUseCase } from './list-members.usecase';
 
 describe('ListMembersUseCase', () => {
-  let useCase: ListMembersUseCase;
-  let repository: jest.Mocked<MemberRepository>;
-
-  const mockMembers: Member[] = [
+  const members: Member[] = [
     { id: 1, fullName: 'Juan Perez', email: 'juan@email.com', phone: '3001112233', active: true },
     { id: 2, fullName: 'Maria Gomez', email: 'maria@email.com', phone: '3002223344', active: true },
   ];
 
-  beforeEach(() => {
-    TestBed.resetTestingModule();
-    repository = {
-      getAll: jest.fn(),
-      getById: jest.fn(),
-      create: jest.fn(),
-    } as unknown as jest.Mocked<MemberRepository>;
-    TestBed.configureTestingModule({
-      providers: [
-        ListMembersUseCase,
-        { provide: MemberRepository, useValue: repository },
-      ],
-    });
-    useCase = TestBed.inject(ListMembersUseCase);
-  });
-
-  it('debe retornar la lista de miembros', async () => {
-    repository.getAll.mockResolvedValue(mockMembers);
-
-    const result = await useCase.execute();
-
-    expect(result).toEqual(mockMembers);
-    expect(repository.getAll).toHaveBeenCalledTimes(1);
+  it('debe retornar los socios del repositorio', async () => {
+    const repository = { findAll: jest.fn().mockResolvedValue(members) } as unknown as MemberRepository;
+    const result = await new ListMembersUseCase(repository).execute();
+    expect(result).toEqual(members);
+    expect(repository.findAll).toHaveBeenCalledTimes(1);
   });
 
   it('debe propagar el error del repositorio', async () => {
-    repository.getAll.mockRejectedValue(new Error('Error de base de datos'));
-
-    await expect(useCase.execute()).rejects.toThrow('Error de base de datos');
+    const repository = { findAll: jest.fn().mockRejectedValue(new Error('Error de base de datos')) } as unknown as MemberRepository;
+    await expect(new ListMembersUseCase(repository).execute()).rejects.toThrow('Error de base de datos');
   });
 });
