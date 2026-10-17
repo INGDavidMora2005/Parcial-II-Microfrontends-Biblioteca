@@ -1,12 +1,9 @@
 <div
-  class="p-3 rounded-md text-sm font-medium border mb-4"
+  class="alert mb-3"
+  role="alert"
   *ngIf="message"
-  [class.bg-red-50]="type === 'error'"
-  [class.border-red-200]="type === 'error'"
-  [class.text-red-700]="type === 'error'"
-  [class.bg-green-50]="type === 'success'"
-  [class.border-green-200]="type === 'success'"
-  [class.text-green-700]="type === 'success'"
+  [class.alert-danger]="type === 'error'"
+  [class.alert-success]="type === 'success'"
 >
   {{ message }}
 </div>

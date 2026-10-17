@@ -1,28 +1,28 @@
-<main class="card-container max-w-6xl mx-auto mt-6">
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Socios</h2>
+    <button type="button" class="btn btn-primary" (click)="openForm()">+ Agregar socio</button>
+  </div>
+
   @if (error()) {
-    <app-alert class="block" type="error" [message]="error() ?? ''" (click)="clearMessages()" />
+    <app-alert type="error" [message]="error() ?? ''" (click)="clearMessages()" />
   }
 
   @if (successMessage()) {
-    <app-alert class="block" type="success" [message]="successMessage() ?? ''" (click)="clearMessages()" />
+    <app-alert type="success" [message]="successMessage() ?? ''" (click)="clearMessages()" />
   }
 
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-semibold text-gray-900">Socios</h1>
-    <button class="btn-primary" (click)="openForm()">+ Agregar socio</button>
-  </div>
-
   @if (loading()) {
-    <div class="p-4 text-sm text-gray-500">Cargando socios...</div>
+    <div class="text-muted my-3">Cargando socios...</div>
   } @else {
-    <app-members-table class="block" [members]="members()" (memberSelected)="selectMember($event)" />
+    <app-members-table [members]="members()" (memberSelected)="selectMember($event)" />
   }
 
   @if (selected()) {
-    <app-member-detail class="block" [member]="selected()" (closed)="closeDetail()" />
+    <app-member-detail [member]="selected()" (closed)="closeDetail()" />
   }
 
   @if (showForm()) {
-    <app-member-form class="block" [saving]="saving()" (submitted)="createMember($event)" (cancelled)="cancelForm()" />
+    <app-member-form [saving]="saving()" (submitted)="createMember($event)" (cancelled)="cancelForm()" />
   }
-</main>
+</div>

@@ -1,5 +1,5 @@
-<div class="overflow-x-auto">
-  <table class="members-table">
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
     <thead>
       <tr>
         <th>ID</th>
@@ -17,12 +17,14 @@
         <td>{{ member.email }}</td>
         <td>{{ member.phone || '—' }}</td>
         <td>
-          <span class="badge" [class.active]="member.active">{{ member.active ? 'Activo' : 'Inactivo' }}</span>
+          <span class="badge" [class.bg-success]="member.active" [class.bg-secondary]="!member.active">
+            {{ member.active ? 'Activo' : 'Inactivo' }}
+          </span>
         </td>
         <td>
           <button
             type="button"
-            class="btn-link"
+            class="btn btn-sm btn-outline-primary"
             (click)="select(member); $event.stopPropagation()"
           >
             Ver detalle
@@ -31,6 +33,6 @@
       </tr>
     </tbody>
   </table>
-
-  <p class="p-4 text-sm text-gray-500" *ngIf="members.length === 0">No hay socios registrados</p>
 </div>
+
+<p class="text-muted" *ngIf="members.length === 0">No hay socios registrados</p>
