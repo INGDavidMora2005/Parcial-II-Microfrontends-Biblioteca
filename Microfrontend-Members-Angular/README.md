@@ -30,19 +30,22 @@ Todos los cuerpos de respuesta JSON usan camelCase: `id`, `fullName`, `email`, `
 
 El proyecto sigue Clean Architecture con dependencias que apuntan hacia adentro: las capas externas (presentation, infrastructure) dependen de las internas (application, domain), y ninguna capa interna depende de frameworks externos ni de capas externas.
 
+Los **casos de uso son clases planas sin imports de Angular**: `domain` y `application` no importan `@angular`. Las tres clases (`ListMembersUseCase`, `GetMemberByIdUseCase`, `CreateMemberUseCase`) reciben `MemberRepository` por constructor y exponen `execute()`. Se instancian mediante `useFactory` en `members.providers.ts`.
+
 Árbol real de `src/app`:
 
 ```
 app/
-├── app.ts                      (componente raíz, router-outlet)
+├── app.ts                      (componente raíz standalone, router-outlet)
 ├── app.html                    (template raíz)
+├── app.scss                    (estilos del componente raíz)
 ├── app.routes.ts               (ruta '' -> MembersPage con loadComponent)
-├── app.config.ts               (provideHttpClient)
+├── app.config.ts               (provideHttpClient, provideRouter, etc.)
 ├── application/
 │   └── usecases/
-│       ├── list-members.usecase.ts         (listar socios)
-│       ├── get-member-by-id.usecase.ts     (obtener socio por id)
-│       └── create-member.usecase.ts        (crear socio con validaciones)
+│       ├── list-members.usecase.ts         (ListMembersUseCase.execute -> findAll)
+│       ├── get-member-by-id.usecase.ts     (GetMemberByIdUseCase.execute: valida id, luego findById)
+│       └── create-member.usecase.ts        (CreateMemberUseCase.execute: valida, luego create)
 ├── domain/
 │   ├── entities/
 │   │   └── member.entity.ts      (interfaces Member y NewMember)
@@ -56,7 +59,7 @@ app/
 │   ├── gateways/
 │   │   └── member-api.gateway.ts (MemberApiGateway extends MemberRepository, HttpClient)
 │   └── mappers/
-│       └── member.mapper.ts      (toEntity, toCreateDto; normaliza phone null -> '')
+│       └── member.mapper.ts      (MemberMapper.toEntity / toCreateDto; normaliza phone null -> '')
 └── presentation/
     ├── components/
     │   ├── alert/                (alerta error/success)
@@ -65,35 +68,53 @@ app/
     │   └── members-table/        (tabla de listado de socios)
     └── pages/
         └── members/
-            └── members.page.ts   (página principal con providers y signals)
+            ├── members.page.ts        (MembersPage: signals, usa providers: MEMBERS_PROVIDERS)
+            └── members.providers.ts   (MEMBERS_PROVIDERS: raíz de composición)
 ```
 
 ### Puerto vs implementación
 
-`MemberRepository` es una **clase abstracta** (el puerto) definida en `domain/repositories/member.repository.ts`. Sirve como token de inyección y contrato que los casos de uso consumen. `MemberApiGateway` (`infrastructure/gateways/member-api.gateway.ts`) es la **implementación concreta** que extiende esa clase abstracta y llama al microservicio mediante `HttpClient`. El enlace entre ambos se hace en el `providers` del componente `MembersPage`.
+`MemberRepository` es una **clase abstracta** (el puerto) definida en `domain/repositories/member.repository.ts`. Declara tres métodos:
+
+- `findAll(): Promise<Member[]>` — obtiene todos los socios.
+- `findById(id: number): Promise<Member>` — obtiene un socio por su id.
+- `create(member: NewMember): Promise<Member>` — registra un socio nuevo.
+
+Sirve como token de inyección y contrato que los casos de uso consumen. `MemberApiGateway` (`infrastructure/gateways/member-api.gateway.ts`) es la **implementación concreta**: implementa el puerto (`class MemberApiGateway implements MemberRepository`) e implementa los tres métodos con `HttpClient`. El enlace entre ambos se hace en `MEMBERS_PROVIDERS`.
 
 ### Regla de dependencias
 
-- `domain` no importa nada (ni Angular, ni rxjs, ni nada de capas externas).
-- `application` solo importa de `domain` y de `@angular/core` (únicamente `inject` e `Injectable`).
-- `infrastructure` importa de `domain` y `application`, y usa `HttpClient` de `@angular/common/http`.
-- `presentation` importa de `application`, `domain` y `infrastructure/gateways` (únicamente para el `providers`). No importa `HttpClient`.
+- `domain` no importa frameworks ni capas externas (solo sus propios tipos).
+- `application` importa únicamente de `domain`; **no importa `@angular`** (los casos de uso son clases planas).
+- `infrastructure` importa de `domain` y `application`, y usa `HttpClient`/`HttpErrorResponse` de `@angular/common/http`.
+- `presentation` importa de `application`, `domain` e `infrastructure/gateways` (solo desde `members.providers.ts`) y usa APIs de `@angular/core` en los componentes. No importa `HttpClient`.
 
 ## Inyección de dependencias
 
-El enlace `MemberRepository -> MemberApiGateway` se declara en el `providers` del componente `MembersPage`, **no en `app.config.ts`**, porque al cargarse dentro del host mediante Module Federation, el `app.config.ts` del microfrontend no se ejecuta en el contexto del host. Declarar los proveedores en el componente asegura que cada vez que el host renderiza `MembersPage` se resuelva `MemberRepository` a `MemberApiGateway`. `provideHttpClient()` sí se registra en `app.config.ts` porque el host aporta el inyector de Angular que ya tiene configurado `HttpClient`.
+La composición está en `presentation/pages/members/members.providers.ts`, que exporta `MEMBERS_PROVIDERS: Provider[]`:
+
+- `{ provide: MemberRepository, useClass: MemberApiGateway }` — enlaza el puerto con su implementación.
+- `ListMembersUseCase`, `GetMemberByIdUseCase` y `CreateMemberUseCase` se declaran con `useFactory`, construyendo cada caso de uso con `new ...(repository)` y `deps: [MemberRepository]`.
+
+`MembersPage` declara `providers: MEMBERS_PROVIDERS` en su decorador `@Component` y resuelve los tres casos de uso con `inject()`.
+
+El enlace **no se declara en `app.config.ts`** porque, al cargarse dentro del host mediante Module Federation, el `app.config.ts` del microfrontend no se ejecuta en el contexto del host. Declarar los proveedores en el componente asegura que cada vez que el host renderiza `MembersPage` se resuelvan `MemberRepository -> MemberApiGateway` y los casos de uso. `provideHttpClient()` sí se registra en `app.config.ts` porque el host aporta el inyector de Angular que ya tiene configurado `HttpClient`.
 
 ## Flujo de un caso de uso (clic en "Guardar")
 
 1. El usuario llena el formulario en `member-form.component.ts` y hace clic en "Guardar". El componente valida con `ReactiveFormsModule` y emite `submitted(NewMember)`.
-2. `members.page.ts` recibe el evento en `createMember()`, pone `saving=true` y llama `createMemberUseCase.execute(member)`.
-3. `create-member.usecase.ts` valida que `fullName` y `email` no estén vacíos y que el email contenga "@". Si pasa, llama `memberRepository.create(member)`.
-4. La implementación concreta es `member-api.gateway.ts` (`MemberApiGateway extends MemberRepository`), que mapea con `member.mapper.ts` (`toCreateDto`) y llama `http.post(MEMBERS_API_URL, dto)` mediante `firstValueFrom`.
+2. `members.page.ts` recibe el evento en `createMember()`, limpia el error, pone `saving=true` y llama `createMemberService.execute(member)`.
+3. `create-member.usecase.ts` valida que `fullName` no esté vacío, que `email` no esté vacío y que contenga "@". Si falla, lanza `Error` con el mensaje correspondiente; si pasa, llama `memberRepository.create(member)`.
+4. La implementación concreta es `member-api.gateway.ts` (`MemberApiGateway`), que mapea con `member.mapper.ts` (`MemberMapper.toCreateDto`) y llama `http.post(MEMBERS_API_URL, dto)` mediante `firstValueFrom`.
 5. El microservicio en `http://localhost:3002/api/members` crea el socio, le asigna un id autoincremental y retorna el `MemberDto`.
-6. `MemberApiGateway` mapea la respuesta con `toEntity()` y retorna el `Member`.
-7. `members.page.ts` muestra el mensaje de éxito ("Socio creado correctamente"), cierra el formulario y recarga la lista con `listMembersUseCase.execute()`.
+6. `MemberApiGateway` mapea la respuesta con `MemberMapper.toEntity()` y retorna el `Member`.
+7. `members.page.ts` muestra el mensaje de éxito (`Socio "<fullName>" registrado correctamente.`), cierra el formulario, limpia la selección y recarga la lista con `loadMembers()` (que usa `ListMembersUseCase.execute()`).
 
-Todos los errores se capturan en `handleError()` del gateway y se muestran en el componente `alert`.
+Manejo de errores: `MemberApiGateway.request()` captura el error y lanza `new Error(extractMessage(error))`. `extractMessage()` decide el mensaje: si el error es `HttpErrorResponse` usa `error.error.message` cuando existe; si el estado es `0` responde "No se pudo conectar con el servicio de socios"; si es `404` sin mensaje responde "Socio no encontrado"; en otro caso "El servicio de socios respondió con el error <status>". Si no es `HttpErrorResponse`, responde "Ocurrió un error inesperado". La página muestra ese mensaje en el componente `alert`; cuando el error no es una instancia de `Error`, usa los mensajes por defecto ("Error al cargar los socios", "Error al obtener el socio", "Error al crear el socio").
+
+## Estilos
+
+Los estilos están **centralizados en `src/styles.scss`** (registrado como hoja global en `angular.json`). **No se usa Bootstrap** y **no hay Tailwind instalado**: `styles.scss` define de forma explícita la capa de utilidades usada en las plantillas `.html` (layout, tipografía, colores, bordes, estados `:hover/:focus/:disabled`) más los componentes con acabado del taller (`.card-container`, `.members-table`, `.badge`, `.btn-primary`, `.btn-link`). No se crean archivos `.scss` por componente; la única excepción es `app.scss`, asociado al componente raíz `App`.
 
 ## Cómo ejecutar
 
@@ -104,6 +125,7 @@ Desde la carpeta `Microfrontend-Members-Angular`:
 ```
 npm install
 npm run start
+npm run compodoc  # genera la documentación técnica en ./documentation
 ```
 
 El microfrontend sirve en **http://localhost:4202** y expone `remoteEntry.js` en `http://localhost:4202/remoteEntry.js`.
@@ -122,23 +144,28 @@ npm test
 npm run test:coverage
 ```
 
-Herramienta: **Jest 30** con `jest-preset-angular`.
+Herramienta: **Jest 30** con `jest-preset-angular`, `testEnvironment: 'jsdom'` y `setupFilesAfterEnv: ['<rootDir>/setup-jest.ts']`, configurado en `jest.config.js`.
 
-Cobertura obtenida (última ejecución):
+Resultado real de la última ejecución de `npm run test:coverage`:
 
-| Métrica | Valor | Umbral |
-|---------|-------|--------|
+- **Suites:** 10 aprobadas, 10 en total.
+- **Tests:** 65 aprobados, 65 en total.
+
+| Métrica | Valor | Umbral global |
+|---------|-------|---------------|
 | Statements | 100% | 90% |
-| Branches | 93.42% | 90% |
+| Branches | 100% | 90% |
 | Functions | 100% | 90% |
 | Lines | 100% | 90% |
 
-Exclusiones de cobertura (`jest.config.ts`, regla `collectCoverageFrom`):
+El umbral global (90% en las cuatro métricas) se define en `coverageThreshold` de `jest.config.js`, y los reportes se generan con `coverageReporters: ['text', 'lcov']`.
 
-- `src/main.ts`, `src/app/app.config.ts`, `src/app/app.routes.ts`, `src/app/app.ts`, `src/bootstrap.ts` — archivos de arranque y configuración de Angular (sin lógica de negocio).
-- `src/**/*.config.ts`, `src/**/index.ts`, `src/**/*.module.ts` — archivos de configuración e índices de barrel.
-- `src/app/domain/entities/member.entity.ts` — solo interfaces (sin código ejecutable).
-- `src/app/infrastructure/dtos/member.dto.ts` — solo interfaces DTO (sin código ejecutable).
+Exclusiones reales de cobertura (`jest.config.js`, regla `collectCoverageFrom`), partiendo de `'src/app/**/*.ts'`:
+
+- `!src/app/**/*.spec.ts` — archivos de prueba.
+- `!src/app/app.ts` — componente raíz.
+- `!src/app/app.config.ts` — configuración de providers de Angular.
+- `!src/app/app.routes.ts` — definición de rutas.
 
 ## Notas
 
