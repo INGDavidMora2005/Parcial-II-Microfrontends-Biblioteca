@@ -123,4 +123,25 @@ describe('MemberFormComponent', () => {
 
     expect(component.fullName.hasError('required')).toBe(true);
   });
+
+  it('debe usar el fallback vacío cuando el valor del control es nulo', () => {
+    const component = TestBed.inject(MemberFormComponent);
+    const spy = jest.spyOn(component.submitted, 'emit');
+
+    component.form.setValue({
+      fullName: 'Juan Perez',
+      email: 'juan@email.com',
+      phone: '3001112233',
+    });
+    jest.spyOn(component, 'fullName', 'get').mockReturnValue({ value: null } as never);
+    jest.spyOn(component, 'email', 'get').mockReturnValue({ value: null } as never);
+
+    component.onSubmit();
+
+    expect(spy).toHaveBeenCalledWith({
+      fullName: '',
+      email: '',
+      phone: '3001112233',
+    });
+  });
 });
