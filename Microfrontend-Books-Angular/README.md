@@ -20,6 +20,7 @@ npm install
 npm start            # http://localhost:4201
 npm test             # pruebas unitarias con cobertura (Jest)
 npm run build        # compilación de producción
+npm run compodoc     # genera la documentación técnica en ./documentation
 ```
 
 Requiere que el microservicio de libros esté corriendo en el puerto 3001 para mostrar datos. Para verlo integrado, levantar también el host (puerto 4200).
