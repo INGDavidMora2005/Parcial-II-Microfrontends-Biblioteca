@@ -7,6 +7,7 @@ import { MemberRepository } from '../../domain/repositories/member.repository';
 export class ListMembersUseCase {
   constructor(private readonly memberRepository: MemberRepository) {}
 
+  /** Lista todos los socios. */
   execute(): Promise<Member[]> {
     return this.memberRepository.findAll();
   }

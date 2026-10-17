@@ -15,16 +15,19 @@ import { MemberMapper } from '../mappers/member.mapper';
 export class MemberApiGateway implements MemberRepository {
   private readonly http = inject(HttpClient);
 
+  /** Obtiene todos los socios vía HTTP. */
   async findAll(): Promise<Member[]> {
     const dtos = await this.request(this.http.get<MemberDto[]>(MEMBERS_API_URL));
     return dtos.map((dto) => MemberMapper.toEntity(dto));
   }
 
+  /** Obtiene un socio por su id vía HTTP. */
   async findById(id: number): Promise<Member> {
     const dto = await this.request(this.http.get<MemberDto>(`${MEMBERS_API_URL}/${id}`));
     return MemberMapper.toEntity(dto);
   }
 
+  /** Registra un socio nuevo vía HTTP. */
   async create(member: NewMember): Promise<Member> {
     const dto = await this.request(
       this.http.post<MemberDto>(MEMBERS_API_URL, MemberMapper.toCreateDto(member)),

@@ -9,6 +9,7 @@ import { MemberRepository } from '../../domain/repositories/member.repository';
 export class CreateMemberUseCase {
   constructor(private readonly memberRepository: MemberRepository) {}
 
+  /** Registra un socio nuevo tras validar sus datos. */
   async execute(member: NewMember): Promise<Member> {
     if (!member.fullName || !member.fullName.trim()) {
       throw new Error('El nombre completo es obligatorio');

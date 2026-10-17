@@ -9,6 +9,7 @@ import { MemberRepository } from '../../domain/repositories/member.repository';
 export class GetMemberByIdUseCase {
   constructor(private readonly memberRepository: MemberRepository) {}
 
+  /** Obtiene el detalle del socio con el id indicado. */
   async execute(id: number): Promise<Member> {
     if (!Number.isInteger(id) || id <= 0) {
       throw new Error('El id debe ser un número entero positivo');
