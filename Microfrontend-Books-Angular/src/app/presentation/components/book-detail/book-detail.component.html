@@ -1,0 +1,15 @@
+<div class="card mb-3" data-testid="book-detail">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong>Detalle del libro #{{ book().id }}</strong>
+    <button type="button" class="btn-close" aria-label="Cerrar" (click)="onClose()"></button>
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">{{ book().title }}</h5>
+    <p class="card-text mb-1"><strong>Autor:</strong> {{ book().author }}</p>
+    <p class="card-text mb-1"><strong>ISBN:</strong> {{ book().isbn }}</p>
+    <p class="card-text mb-1"><strong>Año:</strong> {{ book().year }}</p>
+    <p class="card-text mb-0">
+      <strong>Estado:</strong> {{ book().available ? 'Disponible' : 'Prestado' }}
+    </p>
+  </div>
+</div>

@@ -1,0 +1,37 @@
+<div class="card mb-4">
+	<div class="card-header d-flex align-items-center">
+		<dsb-icon-atom icon="journal-bookmark" [size]="1.5"></dsb-icon-atom>
+		<span class="ps-2 fw-bold">Préstamo #{{ loan.id }}</span>
+	</div>
+	<div class="card-body">
+		<dl class="row mb-0">
+			<dt class="col-sm-4">Libro</dt>
+			<dd class="col-sm-8">{{ loan.bookTitle }}</dd>
+
+			<dt class="col-sm-4">Socio</dt>
+			<dd class="col-sm-8">{{ loan.memberName }}</dd>
+
+			<dt class="col-sm-4">Fecha préstamo</dt>
+			<dd class="col-sm-8">{{ loan.loanDate }}</dd>
+
+			<dt class="col-sm-4">Fecha devolución</dt>
+			<dd class="col-sm-8">{{ loan.dueDate }}</dd>
+
+			<dt class="col-sm-4">Estado</dt>
+			<dd class="col-sm-8">
+				<dsb-badge-atom
+					[text]="statusText[loan.status]"
+					[type]="statusMap[loan.status]" >
+				</dsb-badge-atom>
+			</dd>
+		</dl>
+	</div>
+	<div class="card-footer text-end">
+		<dsb-button-atom
+			text="Cerrar"
+			type="secondary"
+			idButton="loan-detail-close"
+			(clicker)="onClose()" >
+		</dsb-button-atom>
+	</div>
+</div>

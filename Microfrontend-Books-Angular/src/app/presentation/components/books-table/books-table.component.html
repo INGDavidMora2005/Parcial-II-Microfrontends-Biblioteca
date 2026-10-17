@@ -1,0 +1,40 @@
+@if (books().length === 0) {
+  <p class="text-muted" data-testid="empty">No hay libros registrados.</p>
+} @else {
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Autor</th>
+          <th>ISBN</th>
+          <th>Año</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (book of books(); track book.id) {
+          <tr data-testid="book-row">
+            <td>{{ book.id }}</td>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.isbn }}</td>
+            <td>{{ book.year }}</td>
+            <td>
+              <span class="badge" [class.bg-success]="book.available" [class.bg-secondary]="!book.available">
+                {{ book.available ? 'Disponible' : 'Prestado' }}
+              </span>
+            </td>
+            <td>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="onSelect(book.id)">
+                Ver detalle
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

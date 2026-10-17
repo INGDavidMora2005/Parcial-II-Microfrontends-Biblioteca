@@ -1,0 +1,42 @@
+<table class="table table-striped border">
+	<thead>
+		<tr>
+			<th scope="col">Id</th>
+			<th scope="col">Libro</th>
+			<th scope="col">Socio</th>
+			<th scope="col">Fecha préstamo</th>
+			<th scope="col">Fecha devolución</th>
+			<th scope="col">Estado</th>
+			<th scope="col">Acciones</th>
+		</tr>
+	</thead>
+	<tbody>
+		@for (loan of loans; track loan.id) {
+			<tr>
+				<th scope="row">{{ loan.id }}</th>
+				<td>{{ loan.bookTitle }}</td>
+				<td>{{ loan.memberName }}</td>
+				<td>{{ loan.loanDate }}</td>
+				<td>{{ loan.dueDate }}</td>
+				<td>
+					<dsb-badge-atom
+						[text]="statusText[loan.status]"
+						[type]="statusMap[loan.status]" >
+					</dsb-badge-atom>
+				</td>
+				<td>
+					<dsb-button-atom
+						text="Ver detalle"
+						type="primary"
+						[idButton]="'loan-detail-' + loan.id"
+						(clicker)="onSelect(loan.id)" >
+					</dsb-button-atom>
+				</td>
+			</tr>
+		} @empty {
+			<tr>
+				<td colspan="7">No hay préstamos registrados</td>
+			</tr>
+		}
+	</tbody>
+</table>
