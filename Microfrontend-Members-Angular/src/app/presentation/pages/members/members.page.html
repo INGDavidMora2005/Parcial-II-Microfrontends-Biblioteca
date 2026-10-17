@@ -1,0 +1,28 @@
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Socios</h2>
+    <button type="button" class="btn btn-primary" (click)="openForm()">+ Agregar socio</button>
+  </div>
+
+  @if (error()) {
+    <app-alert type="error" [message]="error() ?? ''" (click)="clearMessages()" />
+  }
+
+  @if (successMessage()) {
+    <app-alert type="success" [message]="successMessage() ?? ''" (click)="clearMessages()" />
+  }
+
+  @if (loading()) {
+    <div class="text-muted my-3">Cargando socios...</div>
+  } @else {
+    <app-members-table [members]="members()" (memberSelected)="selectMember($event)" />
+  }
+
+  @if (selected()) {
+    <app-member-detail [member]="selected()" (closed)="closeDetail()" />
+  }
+
+  @if (showForm()) {
+    <app-member-form [saving]="saving()" (submitted)="createMember($event)" (cancelled)="cancelForm()" />
+  }
+</div>

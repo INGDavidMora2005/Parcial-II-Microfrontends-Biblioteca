@@ -1,0 +1,9 @@
+<div
+  class="alert mb-3"
+  role="alert"
+  *ngIf="message"
+  [class.alert-danger]="type === 'error'"
+  [class.alert-success]="type === 'success'"
+>
+  {{ message }}
+</div>
