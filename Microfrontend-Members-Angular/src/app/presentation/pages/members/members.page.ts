@@ -1,54 +1,49 @@
 import { Component, inject, signal } from '@angular/core';
-
-import { MemberRepository } from '../../../domain/repositories/member.repository';
-import { MemberApiGateway } from '../../../infrastructure/gateways/member-api.gateway';
-import { ListMembersUseCase } from '../../../application/usecases/list-members.usecase';
-import { GetMemberByIdUseCase } from '../../../application/usecases/get-member-by-id.usecase';
 import { CreateMemberUseCase } from '../../../application/usecases/create-member.usecase';
+import { GetMemberByIdUseCase } from '../../../application/usecases/get-member-by-id.usecase';
+import { ListMembersUseCase } from '../../../application/usecases/list-members.usecase';
 import type { Member } from '../../../domain/entities/member.entity';
 import type { NewMember } from '../../../domain/entities/member.entity';
-
 import { MembersTableComponent } from '../../components/members-table/members-table.component';
 import { MemberDetailComponent } from '../../components/member-detail/member-detail.component';
 import { MemberFormComponent } from '../../components/member-form/member-form.component';
 import { AlertComponent } from '../../components/alert/alert.component';
+import { MEMBERS_PROVIDERS } from './members.providers';
 
+/**
+ * Página del microfrontend de Socios (se expone por Module Federation).
+ * @remarks
+ * Solo orquesta la vista e invoca casos de uso.
+ */
 @Component({
   selector: 'app-members',
   standalone: true,
   imports: [MembersTableComponent, MemberDetailComponent, MemberFormComponent, AlertComponent],
-  providers: [
-    { provide: MemberRepository, useClass: MemberApiGateway },
-    ListMembersUseCase,
-    GetMemberByIdUseCase,
-    CreateMemberUseCase,
-  ],
+  providers: MEMBERS_PROVIDERS,
   templateUrl: './members.page.html',
 })
 export class MembersPage {
+  private readonly listMembersService = inject(ListMembersUseCase);
+  private readonly getMemberByIdService = inject(GetMemberByIdUseCase);
+  private readonly createMemberService = inject(CreateMemberUseCase);
 
-  private readonly listMembersUseCase = inject(ListMembersUseCase);
-  private readonly getMemberByIdUseCase = inject(GetMemberByIdUseCase);
-  private readonly createMemberUseCase = inject(CreateMemberUseCase);
+  readonly members = signal<Member[]>([]);
+  readonly selected = signal<Member | null>(null);
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
+  readonly showForm = signal(false);
 
-  members = signal<Member[]>([]);
-  selected = signal<Member | null>(null);
-  loading = signal(false);
-  saving = signal(false);
-  error = signal<string | null>(null);
-  successMessage = signal<string | null>(null);
-  showForm = signal(false);
-
-  async ngOnInit() {
+  async ngOnInit(): Promise<void> {
     await this.loadMembers();
   }
 
-  async loadMembers() {
+  async loadMembers(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const members = await this.listMembersUseCase.execute();
-      this.members.set(members);
+      this.members.set(await this.listMembersService.execute());
     } catch (err) {
       this.error.set(err instanceof Error ? err.message : 'Error al cargar los socios');
     } finally {
@@ -56,23 +51,22 @@ export class MembersPage {
     }
   }
 
-  async selectMember(id: number) {
+  async selectMember(id: number): Promise<void> {
     this.error.set(null);
     try {
-      const member = await this.getMemberByIdUseCase.execute(id);
-      this.selected.set(member);
+      this.selected.set(await this.getMemberByIdService.execute(id));
       this.showForm.set(false);
     } catch (err) {
       this.error.set(err instanceof Error ? err.message : 'Error al obtener el socio');
     }
   }
 
-  async createMember(member: NewMember) {
+  async createMember(member: NewMember): Promise<void> {
     this.error.set(null);
     this.saving.set(true);
     try {
-      await this.createMemberUseCase.execute(member);
-      this.successMessage.set('Socio creado correctamente');
+      const created = await this.createMemberService.execute(member);
+      this.successMessage.set(`Socio "${created.fullName}" registrado correctamente.`);
       this.showForm.set(false);
       this.selected.set(null);
       await this.loadMembers();
@@ -83,25 +77,29 @@ export class MembersPage {
     }
   }
 
-  closeDetail() {
+  closeDetail(): void {
     this.selected.set(null);
     this.error.set(null);
   }
 
-  openForm() {
+  openForm(): void {
     this.showForm.set(true);
     this.selected.set(null);
     this.error.set(null);
     this.successMessage.set(null);
   }
 
-  cancelForm() {
+  cancelForm(): void {
     this.showForm.set(false);
     this.error.set(null);
   }
 
-  clearMessages() {
+  clearMessages(): void {
     this.error.set(null);
     this.successMessage.set(null);
+  }
+
+  private toMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Ocurrió un error inesperado';
   }
 }
