@@ -38,7 +38,7 @@
 						],
 						"main": "src/main.ts",
 						"outputPath": "dist/Microfrontend-Members-Angular",
-						"index": "src\\index.html",
+						"index": "src/index.html",
 						"extraWebpackConfig": "webpack.config.js",
 						"commonChunk": false
 					},
